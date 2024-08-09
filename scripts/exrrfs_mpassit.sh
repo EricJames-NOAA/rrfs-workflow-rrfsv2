@@ -6,6 +6,7 @@ cd ${DATA}/${FHR}
 fhr=$((10#${FHR:-0})) # remove leading zeros
 CDATEp=$($NDATE ${fhr} ${CDATE} )
 timestr=$(date -d "${CDATEp:0:8} ${CDATEp:8:2}" +%Y-%m-%d_%H.%M.%S) 
+timestr2=$(date -d "${CDATEp:0:8} ${CDATEp:8:2}" +%Y-%m-%d_%H:%M:%S)
 
 #gge.debug: in operation, does UPP work on COMROOT(wait for the completion of all fcsts?)  or DATAROOT?
 ${cpreq} ${DATAROOT}/${NET}/${rrfs_ver}/${RUN}.${PDY}/${cyc}/fcst/history.${timestr}.nc .
@@ -24,7 +25,7 @@ elif [[ "${NET}" == "conus3km" ]]; then
   ref_lat=38.5
 fi
 sed -e "s/@timestr@/${timestr}/" -e "s/@nx@/${nx}/" -e "s/@ny@/${ny}/" -e "s/@dx@/${dx}/" \
-    -e "s/@ref_lat@/${ref_lat}/" ${PARMrrfs}/rrfs/namelist.mpassit > namelist.mpassit
+    -e "s/@ref_lat@/${ref_lat}/" -e "s/@timestr2@/${timestr2}/" ${PARMrrfs}/rrfs/namelist.mpassit > namelist.mpassit
 
 # run the MPAS model
 ulimit -s unlimited
@@ -49,12 +50,14 @@ module list
 set -x  
 ### temporarily solution since mpassit uses different modules files that other components
 source prep_step
-srun /lfs5/BMC/nrtrr/FIX_RRFS2/exec/mpassit_20240801.x namelist.mpassit
+srun /lfs4/BMC/wrfruc/ejames/MPASSIT/bin/mpassit namelist.mpassit
+#srun /home/role.wrfruc/HRRRv5/exec/mpassit namelist.mpassit
+#srun /lfs5/BMC/nrtrr/FIX_RRFS2/exec/mpassit_20240801.x namelist.mpassit
 # check the status copy output to COMOUT
-if [[ -s "./mpassit.${timestr}.nc" ]]; then
-  ${cpreq} ${DATA}/${FHR}/mpassit.${timestr}.nc ${COMOUT}/${task_id}/
+if [[ -s "./mpassit.${timestr2}.nc" ]]; then
+  ${cpreq} ${DATA}/${FHR}/mpassit.${timestr2}.nc ${COMOUT}/${task_id}/
 else
-  echo "FATAL ERROR: failed to genereate mpassit.${timestr}.nc"
+  echo "FATAL ERROR: failed to genereate mpassit.${timestr2}.nc"
   export err=99
   err_exit
 fi

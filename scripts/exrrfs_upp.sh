@@ -5,7 +5,7 @@ cpreq=${cpreq:-cpreq}
 cd ${DATA}/${FHR}
 fhr=$((10#${FHR:-0})) # remove leading zeros
 CDATEp=$($NDATE ${fhr} ${CDATE} )
-timestr=$(date -d "${CDATEp:0:8} ${CDATEp:8:2}" +%Y-%m-%d_%H.%M.%S) 
+timestr=$(date -d "${CDATEp:0:8} ${CDATEp:8:2}" +%Y-%m-%d_%H:%M:%S) 
 
 ${cpreq} ${COMINrrfs}/${RUN}.${PDY}/${cyc}/mpassit/mpassit.${timestr}.nc .
 ${cpreq} ${FIXrrfs}/upp/* .
@@ -44,7 +44,10 @@ module list
 set -x  
 ### temporarily solution as UPP uses modules different from other components
 source prep_step
-srun /lfs5/BMC/nrtrr/FIX_RRFS2/exec/upp.x #gge.debug temp solution
+#srun /lfs5/BMC/nrtrr/FIX_RRFS2/exec/upp.x #gge.debug temp solution
+srun /lfs4/BMC/wrfruc/ejames/coding/UPP/exec/upp.x
+#srun /lfs4/BMC/wrfruc/ejames/coding/UPP_hrrrv5/exec/upp.x
+#srun /lfs4/BMC/wrfruc/ejames/coding/UPP_jaymes/exec/upp.x
 # check the status copy output to COMOUT
 wrfprs="WRFPRS${fhr}.tm00"
 wrfnat="WRFNAT${fhr}.tm00"
